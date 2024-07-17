@@ -43,7 +43,7 @@ def download_pdf(url, file_name):
 
     edge_options = Options()
     edge_options.add_experimental_option('prefs', prefs)
-    # edge_options.add_argument('--headless')
+    edge_options.add_argument('--headless')
 
     edge_service = Service(executable_path=EDGE_DRIVER_PATH)
 
