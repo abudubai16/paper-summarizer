@@ -1,18 +1,17 @@
+import os
+import time
+
+from src.const import DOWNLOAD_DIR, EDGE_DRIVER_PATH
+
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import os
-import time
 
-
-EDGE_DRIVER_PATH = r"C:\WebDriver\edgedriver_win64\msedgedriver.exe"
-DOWNLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'downloads')
 os.chdir(DOWNLOAD_DIR)
 download_list = []
 
@@ -70,6 +69,11 @@ def download_pdf(url, file_name):
     finally:
         driver.quit()
   
+
+def download_doi(doi: str, file_name: str)-> None:
+    download_pdf(f'https://sci-hub.st/{doi}', file_name)
+    return 
+
 
 if __name__ == '__main__':
     url = 'https://sci-hub.st/10.1109/TPWRD.2006.883000'
