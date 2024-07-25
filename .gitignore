@@ -127,6 +127,9 @@ celerybeat.pid
 .vscode/*
 .vscode
 
+key.txt
+.llm_venv
+
 # Environments
 # .llm_venv
 .llm_venv/*
