@@ -10,7 +10,7 @@ from src.utils import file_metadata_extractor
 # llama-index imports
 import openai
 
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, PromptTemplate
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, PromptTemplate, StorageContext, load_index_from_storage
 from llama_index.core.node_parser import SimpleNodeParser, SemanticSplitterNodeParser
 
 from llama_index.core.chat_engine import CondensePlusContextChatEngine
@@ -40,11 +40,18 @@ def get_index():
     print('Index Generated')
 
     return index
-   
 
-def get_chat_engine():
+def load_temp_index():
+    storage_context = StorageContext.from_defaults(persist_dir=DOWNLOAD_DIR)
+    index = load_index_from_storage(storage_context=storage_context)
+    return index
 
-    index = get_index()
+def get_chat_engine(index_from_context=False):
+
+    if index_from_context:
+        index = load_temp_index()
+    else:
+        index = get_index()
 
     llm = OpenAI(model=MODEL_NAME)
     custom_prompt = PromptTemplate(
@@ -94,5 +101,6 @@ def get_chat_engine():
 
 
 if __name__ == '__main__':
-    print(get_index())
+    get_chat_engine(True)
+    
     pass
