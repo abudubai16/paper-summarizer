@@ -1,3 +1,3 @@
 import src
 
-from src import document
+from src import const
