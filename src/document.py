@@ -1,7 +1,7 @@
 # local imports
 import os
 from dotenv import load_dotenv  
-load_dotenv('.llm_venv')
+load_dotenv('.venv')
 
 # project imports
 from src.const import DOWNLOAD_DIR, MEMORY_BUFFER, MODEL_NAME
@@ -24,7 +24,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-def get_index():
+def get_index() -> VectorStoreIndex:
     assert len(os.listdir(DOWNLOAD_DIR)) != 0, 'There are no files in the downloads directory'
 
     reader = SimpleDirectoryReader(DOWNLOAD_DIR, file_metadata=file_metadata_extractor)
@@ -33,20 +33,20 @@ def get_index():
     print('Generating Index!')
 
     # parser = SimpleNodeParser.from_defaults(chunk_overlap=20, chunk_size=2048)
-    parser = SemanticSplitterNodeParser(buffer_size=1, breakpoint_percentile_threshold=95, embed_model=OpenAIEmbedding())
-    nodes = parser.get_nodes_from_documents(documents=document) #32_000 words for the testing pdf
+    parser = SemanticSplitterNodeParser(buffer_size=1, breakpoint_percentile_threshold=95, embed_model=OpenAIEmbedding(), )
+    nodes = parser.get_nodes_from_documents(documents=document, show_progress=True) #32_000 words for the testing pdf
     index = VectorStoreIndex(nodes)
     
     print('Index Generated')
 
     return index
 
-def load_temp_index():
+def load_temp_index() :
     storage_context = StorageContext.from_defaults(persist_dir=DOWNLOAD_DIR)
     index = load_index_from_storage(storage_context=storage_context)
     return index
 
-def get_chat_engine(index_from_context=False):
+def get_chat_engine(index_from_context=False) -> CondensePlusContextChatEngine:
 
     if index_from_context:
         index = load_temp_index()
@@ -84,7 +84,13 @@ def get_chat_engine(index_from_context=False):
         retriever=index.as_retriever()
     )
 
-    # Create the streaming response 
+    return chat_engine
+    
+
+def run_chat_engine(index_from_context=False) -> None:
+
+    chat_engine = get_chat_engine(index_from_context)
+
     user_input = ''
     while user_input != 'bye':        
         print('>>>', end='')
@@ -93,14 +99,15 @@ def get_chat_engine(index_from_context=False):
         if user_input == 'bye':
             continue
 
-        streaming_response = chat_engine.stream_chat(user_input)
+        streaming_response = chat_engine.stream_chat(user_input) 
         for token in streaming_response.response_gen:
             print(token, end='')
 
         print('')
-
+    pass
 
 if __name__ == '__main__':
-    get_chat_engine(True)
-    
+    index = get_index()
+    print(type(index))    
+
     pass

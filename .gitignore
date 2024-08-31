@@ -131,18 +131,19 @@ key.txt
 .llm_venv
 
 # Environments
-# .llm_venv
-.llm_venv/*
-llm_venv/*
-llm_venv/
+# .venv
+.venv/*
+venv/*
+venv/
 ENV/
 env.bak/
 venv.bak/
+.venv
 
 # Spyder project settings
 .spyderproject
 .spyproject
-
+`
 # Rope project settings
 .ropeproject
 
