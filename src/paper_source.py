@@ -1,21 +1,28 @@
 import os
 import time
 
-from src.const import DOWNLOAD_DIR, EDGE_DRIVER_PATH
+from src.const import DOWNLOAD_DIR
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.service import Service
-from selenium.webdriver.edge.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
+# Automatically manage the driver
+from webdriver_manager.chrome import ChromeDriverManager
 
 
+if not os.path.exists(DOWNLOAD_DIR):
+    os.mkdir(DOWNLOAD_DIR)
 os.chdir(DOWNLOAD_DIR)
 download_list = []
 
-def rename_file(save_name):
+
+# Check if the file is downloaded or not, if it is then rename
+def rename_file(save_name:str)-> None:
     dir_list = os.listdir(DOWNLOAD_DIR)
     file_found = False
     for file in dir_list:
@@ -33,21 +40,22 @@ def rename_file(save_name):
         print('File Not Downloaded')
 
 
-def download_pdf(url, file_name):
+def download_pdf(url:str, file_name:str)-> None:
     prefs = {
-        "download.default_directory": DOWNLOAD_DIR,  # Change this to your desired directory
+        "download.default_directory": DOWNLOAD_DIR, 
         "download.prompt_for_download": False,
         "profile.default_content_settings.popups": 0
-    }    
+    }
 
-    edge_options = Options()
-    edge_options.add_experimental_option('prefs', prefs)
-    edge_options.add_argument('--headless')
+    chrome_options = Options()
+    chrome_options.add_experimental_option('prefs', prefs)
+    chrome_options.add_argument('--headless')  
+    chrome_options.add_argument('--disable-gpu')
 
-    edge_service = Service(executable_path=EDGE_DRIVER_PATH)
+    # Manage the webdriver automatically
+    chrome_service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
-    driver = webdriver.Edge(service=edge_service, options=edge_options)
-    
     try:
         driver.get(url)
         driver.delete_all_cookies()
@@ -60,8 +68,9 @@ def download_pdf(url, file_name):
         WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.XPATH, "//*[contains(text(), '↓ save')]"))
         ).click()
-        time.sleep(5)
+        print('Save button clicked!')
 
+        time.sleep(5)
         rename_file(save_name=file_name)
         
     except TimeoutException as e:
@@ -76,6 +85,4 @@ def download_doi(doi: str, file_name: str)-> None:
 
 
 if __name__ == '__main__':
-    url = 'https://sci-hub.st/10.1109/TPWRD.2006.883000'
-    download_pdf(url, 'random.pdf')
     pass
