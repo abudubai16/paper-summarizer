@@ -20,7 +20,8 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 
-##############################################
+###################################################################
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
