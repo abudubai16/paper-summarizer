@@ -11,10 +11,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-###################################################################
 
-# Automatically manage the driver
 from webdriver_manager.chrome import ChromeDriverManager
+###################################################################
 
 # Downloads the paper from a given URL
 def download_pdf(url:str, file_name:str)-> None:
@@ -64,8 +63,3 @@ def download_bibliography(url:str, file_name:str)-> None:
 def download_doi(doi: str, file_name: str)-> None:
     download_pdf(f'https://sci-hub.st/{doi}', file_name)
     return 
-
-###################################################################
-
-if __name__ == '__main__':
-    pass
