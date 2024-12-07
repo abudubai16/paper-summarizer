@@ -1,11 +1,14 @@
 import os
 import json
+from typing import List
 
 from src.utils import get_dirs
 from src.const import MEMORY_BUFFER
 
 
 from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.core.llms import ChatMessage
+from llama_index.core.storage.chat_store import SimpleChatStore
 #################################################################
 
 class ChatManager:
@@ -18,41 +21,33 @@ class ChatManager:
         self.memory_buffer = memory_buffer
         self.dirs = get_dirs(self.paper_name)
         self.chat_history_path = os.path.join(self.dirs['chats'], 'chat_history.json')
+        self.chat_store = SimpleChatStore.from_persist_path(self.chat_history_path)
 
-
-    def save_chat_history(self, chat_buffer: ChatMemoryBuffer) -> None:
+    def save_chat_history(self, chat_history: List[ChatMessage]) -> None:
         """
-            Save the chat history to a JSON file.
+            Save the chat history for the given paper to the chat store.
         """
-        with open(self.chat_history_path, 'w') as file:
-            json.dump(chat_buffer.to_dict(), file)
-
+        self.chat_store.set_messages(self.paper_name, chat_history)
+        self.chat_store.persist(self.chat_history_path)
 
     def load_chat_history(self) -> ChatMemoryBuffer:
         """
-            Load the chat history from a file, if the file doesn't exist or is corrupted, return an empty chat buffer.
+            Load the chat history for the given paper from the chat store.
+            If no history exists, return an empty list.
         """
-        try:
-            with open(self.chat_history_path, 'r') as file:
-                chat_data = json.load(file)
-            print(f"Chat history loaded from {self.chat_history_path}")
-            return ChatMemoryBuffer.from_dict(chat_data)
-        except FileNotFoundError:
-            print(f"No chat history found at {self.chat_history_path}. Starting fresh.")
-            return ChatMemoryBuffer.from_defaults(token_limit=self.memory_buffer)
-        except Exception as e:
-            print(f"Error loading chat history: {e}")
-            print("Starting with an empty chat buffer.")
-            return ChatMemoryBuffer.from_defaults(token_limit=self.memory_buffer)
+
+        return ChatMemoryBuffer.from_defaults(self.chat_store.get_messages(self.paper_name))
+
+    def add_message_to_chat_history(self, message: ChatMessage) -> None:
+        """
+            Add a single message to the chat history for the given paper.
+        """
+        self.chat_store.add_message(self.paper_name, message)
+        self.chat_store.persist(self.chat_history_path)
 
     def delete_chat_history(self) -> None:
         """
-            Delete the chat history file.
+            Delete the entire chat history for the given paper.
         """
-        try:
-            os.remove(self.chat_history_path)
-            print(f"Chat history file {self.chat_history_path} deleted.")
-        except FileNotFoundError:
-            print(f"No chat history file found at {self.chat_history_path} to delete.")
-        except Exception as e:
-            print(f"Error deleting chat history: {e}")
+        self.chat_store.delete_messages(self.paper_name)
+        self.chat_store.persist(self.chat_history_path)

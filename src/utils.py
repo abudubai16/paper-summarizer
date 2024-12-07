@@ -38,8 +38,14 @@ def load_prompts(prompt_loc=DEFAULT_PROMPT_LOC)->str:
         return prompt_template
 
 
-def create_index_dirs(paper_name:str)->None:
-    paper_dir = os.path.join(INDEXES_DIR, paper_name)
+def create_index_dirs(paper_name:str, root_dir:str=INDEXES_DIR)->None:
+    """
+        Create the directories for the paper's index and chat history.
+        Inputs: 
+            - paper_name: The name of the directory containing the paper resources
+            - root_dir: The root directory containing all of the papers
+    """
+    paper_dir = os.path.join(root_dir, paper_name)
     index_dir = os.path.join(paper_dir, 'index')
     chat_dir = os.path.join(paper_dir, 'chats')
     dirs = [paper_dir, index_dir, chat_dir]
@@ -50,11 +56,17 @@ def create_index_dirs(paper_name:str)->None:
     print(f'Index directory created at {paper_dir}')
 
 
-def get_dirs(paper_name:str)->dict:
+def get_dirs(paper_name:str, root_dir:str=INDEXES_DIR)->dict:
+    """
+        Get the directories for the paper's index and chat history.
+        Inputs: 
+            - paper_name: The name of the directory containing the paper resources
+            - root_dir: The root directory containing all of the papers
+    """
     dirs={
-        'paper': os.path.join(INDEXES_DIR, paper_name),
-        'index': os.path.join(os.path.join(INDEXES_DIR, paper_name), 'index'),
-        'chats': os.path.join(os.path.join(INDEXES_DIR, paper_name), 'chats')
+        'paper': os.path.join(root_dir, paper_name),
+        'index': os.path.join(os.path.join(root_dir, paper_name), 'index'),
+        'chats': os.path.join(os.path.join(root_dir, paper_name), 'chats')
     }
 
     if os.path.exists(dirs['paper']):

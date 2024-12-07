@@ -74,7 +74,7 @@ class ChatEngineOpenAI:
             if user_input.lower() == 'bye':
                 print("Exiting chat.")
 
-                print(self.chat_engine.chat_history) ###############################################
+                self.chat_manager.save_chat_history(self.chat_engine.chat_history)
                 break
 
             streaming_response = self.chat_engine.stream_chat(user_input)

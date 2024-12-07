@@ -21,13 +21,14 @@ class IndexManager:
         self.paper_name = paper_name
         self.dirs = get_dirs(paper_name)
         self.index_path = self.dirs['index']
+
         if len(os.listdir(self.index_path))==0:
             self.create_index()
 
 
     def create_index(self):
         """
-            - Create and save an index if the download directory is not empty.
+            Create and save an index if the download directory is not empty.
         """
         assert len(os.listdir(DOWNLOAD_DIR)) != 0, 'There are no files in the downloads directory to ingest'
 
@@ -45,11 +46,21 @@ class IndexManager:
 
         index = VectorStoreIndex(nodes)
         index.storage_context.persist(persist_dir=self.index_path)
+        
+        self.delete_files()
+
+    def delete_files(self):
+        """
+            Delete the downloaded files after ingestion.
+        """
+        files=os.listdir(DOWNLOAD_DIR)
+        for file in files:
+            os.remove(os.path.join(DOWNLOAD_DIR, file))
 
 
     def load_index(self):
         """
-            - Loads an index from the specified directory.
+            Loads an index from the specified directory.
         """
         if not os.path.exists(self.index_path):
             raise FileNotFoundError(f"No index found at {self.index_path}")
@@ -61,6 +72,6 @@ class IndexManager:
 
     def delete_index(self) -> None:
         """
-        Delete the index directory and its contents.
+            Delete the index directory and its contents.
         """
         shutil.rmtree(self.index_path)
